@@ -2,23 +2,32 @@ package com.louay.demo.Model;
 
 import java.util.*;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+
+@Entity
 public class Host {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private int pe;
     private int ram;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<VM> vms;
-    private int nextVmId;
 
     public Host() {
         this.vms = new ArrayList<>();
-        this.nextVmId = 1;
     }
 
     public Host(int pe, int ram) {
         this.pe = pe;
         this.ram = ram;
         this.vms = new ArrayList<>();
-        this.nextVmId = 1;
     }
 
     public int getId() {
@@ -46,7 +55,7 @@ public class Host {
     }
 
     public List<VM> getVms() {
-        return new ArrayList<>(vms); 
+        return new ArrayList<>(vms);
     }
 
     public VM getVm(int vmId) {
@@ -55,25 +64,21 @@ public class Host {
                 return vm;
             }
         }
-        return null; 
+        return null;
     }
 
     public VM addVm(VM vm) {
         if (vm.getPe() > this.pe || vm.getRam() > this.ram) {
             return null;
         }
+        vm.setId(vms.size() + 1);
         this.pe -= vm.getPe();
         this.ram -= vm.getRam();
-        vm.setId(nextVmId++);
         this.vms.add(vm);
         return vm;
     }
 
     public boolean deleteVm(int vmId) {
-        if (vms.isEmpty()) {
-            return false;
-        }
-
         for (int i = 0; i < vms.size(); i++) {
             VM vm = vms.get(i);
             if (vm.getId() == vmId) {

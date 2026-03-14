@@ -1,6 +1,11 @@
 package com.louay.demo.Model;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
 public class VM {
+    @Id
     private int id;
     private int pe;
     private int ram;
@@ -12,7 +17,6 @@ public class VM {
         this.pe = pe;
         this.ram = ram;
     }
-
 
     public int getId() {
         return id;

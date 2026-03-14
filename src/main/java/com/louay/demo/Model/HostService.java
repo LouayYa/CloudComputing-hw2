@@ -1,79 +1,86 @@
 package com.louay.demo.Model;
 import java.util.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class HostService {
-    private Map<Integer, Host> hosts;
-    private int nextHostId;
 
-    public HostService() {
-        hosts = new HashMap<>();
-        this.nextHostId = 1;
-    }
+    @Autowired
+    private HostRepository hostrepo;
 
     public List<Host> getHosts() {
-        return new ArrayList<>(hosts.values());
+        return hostrepo.findAll();
     }
-   
+
     public Host addHost(Host ahost) {
-        ahost.setId(nextHostId++);
-        hosts.put(ahost.getId(), ahost);
-        return ahost;
+        return hostrepo.save(ahost);
     }
 
     public Host getHost(int id) {
-        return hosts.get(id);
+        return hostrepo.findById(id).orElse(null);
     }
 
     public Host updateHost(Host ahost){
-        if (hosts.containsKey(ahost.getId())) {
-            Host temp = hosts.get(ahost.getId());
-            temp.setPe(ahost.getPe());
-            temp.setRam(ahost.getRam());
-            return temp;
+        Host existingHost = hostrepo.findById(ahost.getId()).orElse(null);
+        if (existingHost != null) {
+            existingHost.setPe(ahost.getPe());
+            existingHost.setRam(ahost.getRam());
+            return hostrepo.save(existingHost);
         }
         return null;
     }
 
     public boolean removeHost(int id) {
-        if (hosts.containsKey(id)) {
-            hosts.remove(id);
+        Host host = hostrepo.findById(id).orElse(null);
+        if (host != null) {
+            hostrepo.delete(host);
             return true;
         }
         return false;
     }
 
     public VM addVmToHost(int hostId, VM vm){
-        Host host = hosts.get(hostId);
+        Host host = hostrepo.findById(hostId).orElse(null);
         if (host != null) {
-            return host.addVm(vm);
+            VM addedVm = host.addVm(vm);
+            if (addedVm != null) {
+                hostrepo.save(host);
+                return addedVm;
+            }
         }
         return null;
     }
 
     public boolean deleteVmFromHost(int hostId, int vmId){
-        Host host = hosts.get(hostId);
-        if (host != null) {
-            return host.deleteVm(vmId);
+        Host host = hostrepo.findById(hostId).orElse(null);
+        if (host != null && host.deleteVm(vmId)) {
+            hostrepo.save(host);
+            return true;
         }
         return false;
     }
+
     public boolean updateVmInHost(int hostId, VM vm){
-        Host host = hosts.get(hostId);
-        if (host != null) {
-            return host.updateVm(vm);
+        Host host = hostrepo.findById(hostId).orElse(null);
+        if (host != null && host.updateVm(vm)) {
+            hostrepo.save(host);
+            return true;
         }
         return false;
     }
+
     public VM getVmFromHost(int hostId, int vmId){
-        Host host = hosts.get(hostId);
+        Host host = hostrepo.findById(hostId).orElse(null);
         if (host != null) {
             return host.getVm(vmId);
         }
         return null;
     }
+
     public List<VM> getVmsFromHost(int hostId){
-        Host host = hosts.get(hostId);
+        Host host = hostrepo.findById(hostId).orElse(null);
         if (host != null) {
             return host.getVms();
         }

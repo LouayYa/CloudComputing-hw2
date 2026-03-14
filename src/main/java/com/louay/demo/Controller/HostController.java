@@ -4,6 +4,7 @@ import com.louay.demo.Model.*;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,15 +20,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RequestMapping("/hosts")
 public class HostController {
 
-    private HostService hservice = new HostService();
+    @Autowired
+    private HostService hservice;
 
-     @GetMapping
-    public List<Host> getallhosts() {
+    @GetMapping
+    public List<Host> getAllHosts() {
         return hservice.getHosts();
     }
 
     @GetMapping("/{id}")
-    public Host geHosttHost(@PathVariable("id") int id) {
+    public Host getHost(@PathVariable("id") int id) {
         return hservice.getHost(id);
     }
 
@@ -54,11 +56,7 @@ public class HostController {
 
     @GetMapping("/{id}/vms")
     public List<VM> getVms(@PathVariable("id") int id){
-        Host host = hservice.getHost(id);
-        if (host != null) {
-            return host.getVms();
-        }
-        return null; 
+        return hservice.getVmsFromHost(id);
     }
 
     @GetMapping("/{id}/vms/{vmId}")
